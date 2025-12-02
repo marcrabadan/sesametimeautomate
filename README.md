@@ -72,23 +72,43 @@ sesametimeautomate/
 
 ## Configuration
 
-Create a `.env` file in the `python_project` directory with the following environment variables:
+Create a `.env` file in the `python_project` directory with the environment variables used by the application.
+
+Notes about cron fields and formats
+- The scheduler uses standard crontab expressions in the form: `minute hour day month weekday`.
+- Use a site like https://crontab.guru to build and verify expressions.
+- `IN_TIME_CRON` and `OUT_TIME_CRON` may contain multiple cron expressions separated by a comma (`,`) to schedule the same job at several times. Do not include extra commas; avoid spaces around the comma for reliability (for example: `3 9 * * 1-4,0 8 * * 5`).
+- `BREAK_START_CRON` and `BREAK_END_CRON` expect a single cron expression.
+- `TIME_ZONE` controls the scheduler timezone (e.g., `Europe/Madrid`, `America/New_York`).
+
+Example `.env` file:
 
 ```env
-# API Authentication
-SESAME_TIME_API_KEY=your_api_key_here
+# API / authentication
+BASE_URL=https://back-eu2.sesametime.com
+COOKIE_DOMAIN=back-eu2.sesametime.com
 SESAME_TIME_USERNAME=your_username_here
 SESAME_TIME_PASSWORD=your_password_here
 
-# Scheduler Configuration
-TIME_ZONE=Europe/Stockholm
+# Scheduler configuration
+TIME_ZONE=Europe/Madrid
 
-# Cron Schedules (required)
-# Format: "hour minute day_of_week" or standard cron format
-IN_TIME_CRON=0 9 *       # Check-in at 9:00 AM daily
-OUT_TIME_CRON=0 17 *     # Check-out at 5:00 PM daily
-BREAK_START_CRON=0 12 *  # Break starts at 12:00 PM daily
-BREAK_END_CRON=0 13 *    # Break ends at 1:00 PM daily
+# Cron schedules (standard crontab format: minute hour day month weekday)
+# - IN_TIME_CRON and OUT_TIME_CRON can contain multiple comma-separated crons.
+# - BREAK_START_CRON and BREAK_END_CRON are single crons.
+# Examples:
+#   - Workdays at 09:03 (Mon–Thu) and at 08:00 on Friday:
+#       IN_TIME_CRON=3 9 * * 1-4,0 8 * * 5
+#   - Check out at 18:03 (Mon–Thu) and at 15:00 on Friday:
+#       OUT_TIME_CRON=3 18 * * 1-4,0 15 * * 5
+IN_TIME_CRON=3 9 * * 1-4,0 8 * * 5
+OUT_TIME_CRON=3 18 * * 1-4,0 15 * * 5
+BREAK_START_CRON=0 13 * * 1-4
+BREAK_END_CRON=0 14 * * 1-4
+
+# Optional settings
+REMOTE_WORK_DAYS=Tuesday, Thursday, Friday
+BREAK_NAME=Comiendo
 ```
 
 ### Environment Variables Explained
